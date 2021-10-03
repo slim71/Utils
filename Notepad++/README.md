@@ -7,6 +7,11 @@ Here you can also find my copy of the folders
 
 containing all settings and plugins I prefer.
 
+You can also find a .zip file containing the latest (at this time) release of 
+[Markdown-plus-plus](https://github.com/Edditoria/markdown-plus-plus), a great
+project to support Markdown syntax highlighting on Notepad++. Paired with
+ **MarkdownViewer++** (see below) it made my markdown experience a lot easier!
+
 ### Copy to another machine
 After you install Notepad++ on your computer, all the configurations will be
  saved in ***C:\Users\UserName\AppData\Roaming\Notepad++***.
@@ -69,7 +74,7 @@ Automatically scans the open document and adds all "TODO:" items to your task li
 Allows autocompletion of brackets ([{""}]).
 
 ### Some settings
-- Material theme
+- Material theme, with Markdown syntax highlighting
 - Auto-completion settings
 - Included snippets:
     - CSS template
