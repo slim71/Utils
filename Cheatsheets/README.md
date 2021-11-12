@@ -14,3 +14,4 @@ open a *Pull request*, please.
 translated in Italian by *Alessandro Cannarsi* (original edition in French, by *Marc Baudoin*)
 - The Great, Big list of LaTex symbols, by David Carlisle, Scott Pakin, Alexander Holt
 - Python cheatsheet, downloadable at [Finxter](blog.finxter.com)
+- Mathematica cheatsheet, from [Nasser M. Abbasi's website](https://www.12000.org/index.htm).
