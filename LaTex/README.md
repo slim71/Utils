@@ -1,4 +1,8 @@
 # LaTex utils
+
+This folder contains useful scripts I've implemented while using LaTex
+(on Notepad++).
+
 ### Bat setup to create a PDF
 Simple script that executes all needed commands to build the PDF document
 starting from bibliography, sources and text.\

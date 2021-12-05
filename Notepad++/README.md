@@ -1,5 +1,7 @@
+# Notepad++
+
 This folder contains useful informations and files regarding Notepad++ and its
- copy to another machine.
+copy to another machine.
 
 Here you can also find my copy of the folders
 - ***%appdata%/Notepad++/***
