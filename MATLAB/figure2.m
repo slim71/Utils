@@ -4,11 +4,13 @@ function FigHandle = figure2(varargin)
 %
 %   Modified by Simone Vollaro
 %
-%   Credits: Jan in Mathworks Forum
+%   Credits: 
+%   Jan in Mathworks Forum
 %   (https://it.mathworks.com/matlabcentral/answers/16663-is-it-possible-to-viewing-the-figure-window-on-second-display)
 %
 %   'WindowState' added as for
 %   https://it.mathworks.com/matlabcentral/answers/98331-is-it-possible-to-maximize-minimize-or-get-the-state-of-my-figure-programmatically-in-matlab
+%
 
     MP = get(0, 'MonitorPositions');
     if size(MP, 1) == 1  % Single monitor
