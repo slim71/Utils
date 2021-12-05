@@ -15,11 +15,12 @@ function out = outval(fun, indexes, varargin)
 %   out = OUTVAL(@bounds, 1, [4,5,1,12]) returns the first return value of
 %   the function 'bounds' (so the smallest element of the array given as
 %   input)
-
+%
 % Implementation by Simone Vollaro (https://github.com/slim71)
+%
 
     % Get 'fun' number of return values
-    mycell = cell(1, nargout(fun));
+    mycell = cell(1, abs(nargout(fun)));
     
     % Get 'fun' return values
     [mycell{:}] = fun(varargin{:});
