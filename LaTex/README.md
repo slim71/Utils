@@ -18,3 +18,7 @@ Main features:
 
 Built upon [prrao answer](https://tex.stackexchange.com/a/44046/218258) in 
 [this tex.stackexchange post](https://tex.stackexchange.com/questions/43984/using-notepad-with-miktex-on-windows).
+
+### LaTex command glossary
+A simple list of commads with a brief description, to easily review some forgotten
+command.
