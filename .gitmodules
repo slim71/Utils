@@ -1,0 +1,6 @@
+[submodule "MATLAB-scripts"]
+	path = MATLAB-scripts
+	url = https://github.com/slim71/MATLAB-scripts
+[submodule "Bash-scripts"]
+	path = Bash-scripts
+	url = https://github.com/slim71/Bash-scripts
