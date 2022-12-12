@@ -1,0 +1,337 @@
+#!/bin/bash
+
+# TODO: handle errors?
+# Exit immediately if a command exits with a non-zero status.
+set -e
+
+###############################################################################
+# Flags
+
+# Set internal debug mode
+DEBUG_FLAG=0
+
+# Build only provided modules
+LIST_FLAG=0
+
+# To force the 'develop' branch
+DEV_FLAG=0
+
+# Compiling environment
+TO_COMPILE=0
+ARM_ENV=0
+X86_ENV=0
+ENV=""
+
+###############################################################################
+# Defines
+
+# Standard list of modules
+MODULES=()
+
+HOME="./"
+
+###############################################################################
+# Useful functions
+
+credits() {
+	printf "/-------------------------------------------------\\ \n"
+	printf "|Made by:                                          | \n"
+	printf "|        Simone Vollaro (slim71sv@gmail.com)       | \n"
+	printf "|                                                  | \n"
+	printf "|Version 2.1.0, 23/11/2022                         | \n"
+	printf "\\-------------------------------------------------/ \n"
+	printf "\n"
+}
+
+# Help function
+Usage()  {
+	# Displaying help...
+	printf "Available options:\n"
+	printf  "\n"
+	printf -- "--debug -d\n"
+	printf "    Turn on debug mode.\n"
+	printf "    Some info will be printed on screen, along with normal commands output.\n"
+	printf  "\n"
+	printf -- "--main -m\n"
+	printf "    Checkout 'develop' branch.\n"
+	printf "    Warning: this forces pulling from remote!\n"
+	printf  "\n"
+	printf -- "--list -l\n"
+	printf "    Specify list of modules to check.\n"
+	printf "    Names must match folders and can be provided one after another.\n"
+	printf  "\n"
+	printf -- "--clean -c\n"
+	printf "    Clean module(s).\n"
+	printf "    Completely clean modules for both ARM and x86.\n"
+	printf  "\n"
+	printf -- "--x86\n"
+	printf "    Also compile for X86.\n"
+	printf  "\n"
+	printf -- "--arm\n"
+	printf "    Also compile for ARMv7.\n"
+	printf  "\n"
+	printf -- "--help -h\n"
+	printf "    Display this help.\n"
+	printf  "\n"
+	credits
+}
+
+# Custom print for debug purposes
+cecho() {
+	if [[ $DEBUG_FLAG -eq 1 ]]; then
+		printf '%s \n' "$*"
+	fi
+}
+
+comake() {
+	cecho "comake arguments: $@"
+	
+	if ! command -v colormake &> /dev/null; then
+		cecho "colormake could not be found" && cecho
+		make -s "$@"
+	else
+		colormake -s "$@"
+	fi
+	cecho
+}
+
+###############################################################################
+# Parse arguments and find options
+
+# Priority: debug mode to be activated?
+INDEX=0
+for argument in "$@"; do
+	((INDEX=INDEX+1))
+
+	# Handle 'debug' argument
+	case $argument in
+		-d|--debug)
+			# Activate internal debug mode
+			DEBUG_FLAG=1
+			
+			# Drop the '-d' (if found) and keep other arguments
+			cecho "Debug flag found"
+			set -- "${@:1:INDEX-1}" "${@:INDEX+1}"
+
+			cecho "Debug mode enabled." && cecho
+			credits
+			break 1
+			;;
+			
+	# Other arguments
+	*)
+			cecho "Something else: $argument"
+	esac
+	
+	cecho "index : $INDEX"
+	
+	if [[ $INDEX -ge $# ]] ; then
+		break
+	fi
+done
+
+# Debug
+cecho "@ (excluding -d): $@" && cecho
+
+# Handle long-option (--option) and short-option (-opt) as well as 
+# non-option (argument) arguments
+# TODO: migrate to getopts?
+args=$(getopt -l "debug,help,main,clean,arm,x86,list:" -o "dhml:" -- "$@")
+
+# Variables in the arguments will be evaluated
+# TODO: remove eval?
+eval set -- "${args[@]}"
+
+# Handle all other possible arguments
+while [ $# -ge 1 ]; do
+	cecho "Argument found: $1"
+	
+	case "$1" in
+	
+		# No more options left, or other modules to insert in list
+		--) 
+			cecho "Remaining args: $@"
+			
+			for argument in "$@"; do
+				if [[ $1 == -- ]]; then # Space or no more arguments
+					cecho "Void parameter (--)"
+					shift # drop the --
+					
+				else # Another module to append in list
+					cecho "Another module specified: $1"
+					
+					if [[ "${1: -1}" == / ]]; then 
+						WHAT=${1%?}
+						INPUT_MODULES+=("$WHAT")
+					else
+						INPUT_MODULES+=("$1")
+					fi
+					
+					shift
+				fi
+			done
+			
+			break 1
+			;;
+			
+		# Specify list of modules
+		-l|--list)
+			printf '%s \n' "List of services provided."
+			LIST_FLAG=1
+			
+			shift # drop the -l
+			
+			for arg in "$@"; do
+				
+				if [[ $1 == -* ]]; then # other option or void argument
+					cecho "Different option -> skip ahead"
+					break 1
+					
+				else # first module to append in list
+					cecho "Module to insert in list: $1"
+					
+					if [[ "${1: -1}" == / ]]; then 
+						WHAT=${1%?}
+						INPUT_MODULES+=("$WHAT")
+						
+					else
+						INPUT_MODULES+=("$1")
+					fi
+					
+					shift
+					
+				fi
+			done
+			;;
+
+		# Set to force checkout of 'develop' branch
+		-m|--main)
+			DEV_FLAG=1
+			printf '%s \n' "Will force pull of branch 'develop'"
+			shift
+			;;
+
+		# Set to compile for ARMv7
+		--arm)
+			printf '%s \n' "Said to compile for ARMv7'"
+			ARM_ENV=1
+			ENV="armv7"
+			TO_COMPILE=1
+			shift
+			;;
+
+		# Set to compile for x86
+		--x86)
+			printf '%s \n' "Said to compile for ARMv7'"
+			X86_ENV=1
+			ENV="x86"
+			TO_COMPILE=1
+			shift
+			;;
+
+		# Display the guideline
+		-h|--help)
+			Usage
+			exit 0
+			;;
+
+		# Other stuff, like modules names
+		*)
+			# Handle some other input
+			# Not needed, since getopt filters out provided arguments
+			cecho "Some other stuff: $1"
+			Usage
+			exit 0
+	esac
+	
+	cecho
+	
+done
+
+# Deciding modules to check
+if [[ "$LIST_FLAG" -eq 1 ]]; then
+	CHECK_LIST=("${INPUT_MODULES[@]}") # Provided list
+else # Everything in the folder
+	CHECK_LIST=("${MODULES[@]}")
+fi
+
+printf '%s \n' "-----------------------------------------------------"
+
+###############################################################################
+# Debug infos
+
+cecho && cecho "Printing INPUT_MODULES..."
+for value in "${INPUT_MODULES[@]}" ; do
+	cecho "$value" 
+done
+cecho "Done." && cecho
+
+
+cecho && cecho "Printing CHECK_LIST..."
+for value in "${CHECK_LIST[@]}" ; do
+	cecho "$value" 
+done
+cecho "Done." && cecho
+
+###############################################################################
+# Actual actions
+for module in "${CHECK_LIST[@]}"; do
+	cecho
+	cecho "-----------------------------------------------------"
+	cecho
+	
+	# If there are any submodules, leave these uncommented
+	cecho "Entering $module..."
+	cd "$module"
+	cecho "Done."
+	
+	cecho "Updating submodule..."
+	git submodule init --quiet
+	git submodule update --quiet --recursive
+	cecho "Done."
+	
+	if [[ "$DEV_FLAG" -eq 1 ]]; then # Force to develop
+		cecho "Forcing pull of 'develop'"
+		git checkout -q -f develop
+	else # Keep current branch
+		cecho "Updating already checked-out branch..."
+		git branch --show-current
+	fi
+	
+	git fetch -q && git pull -q -f
+	cecho "Done."
+	cecho
+
+	# Compile sources
+	if [[ "$TO_COMPILE" -eq 1 ]]; then
+		cecho "Compiling for $ENV..."
+			
+		comake ARCH=$ENV clean
+		cecho
+
+		# If a framework is present, build that too
+		if [ -d "framework" ]; then
+			cecho "Framework present; trying to build interfaces..."
+			comake ARCH=$ENV interfaces install || echo "No interfaces or error while making."
+			cecho "Done."
+			cecho
+		fi
+
+		comake ARCH=$ENV
+		cecho "Done."
+		cecho
+
+		cecho "Compiling done."
+	fi
+	
+	cecho "Going back one level..."
+	cd ..
+	cecho "Done."
+	
+	cecho
+done
+
+printf '%s \n' "-----------------------------------------------------"
+printf '%s \n' "Finished. All modules checked and updated!"
+
+trap - EXIT
