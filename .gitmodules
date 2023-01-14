@@ -4,3 +4,6 @@
 [submodule "Bash-scripts"]
 	path = Bash-scripts
 	url = https://github.com/slim71/Bash-scripts
+[submodule "Cheatsheets/stanford-cs-229-machine-learning"]
+	path = Cheatsheets/stanford-cs-229-machine-learning
+	url = https://github.com/afshinea/stanford-cs-229-machine-learning
